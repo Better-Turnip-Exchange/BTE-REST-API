@@ -128,9 +128,9 @@ def main_driver(debug=True):
         response = turnip_obj.scrape_turnip_data()
         out = json.loads(response.text)
         print("Visited islands ", turnip_obj.islands_visited)
-        turnip_obj.fbclient_interface(
-            username=os.environ.get("FB_USER"), pwd=os.environ.get("FB_PASS"), choice="Login",
-        )
+        # turnip_obj.fbclient_interface(
+        #     username=os.environ.get("FB_USER"), pwd=os.environ.get("FB_PASS"), choice="Login",
+        # )
         users = []
         for island in out["islands"]:
             if (
@@ -149,10 +149,10 @@ def main_driver(debug=True):
                     for user in users_requested:
                         users.append((turnip_obj.fbclient.searchForUsers(user)[0]).uid)
                 print("ISLAND FOUND!")
-                turnip_obj.fbclient_interface(
-                    username=None, pwd=None, msg=msg_url, recipients=users, choice="Msg"
-                )
-        turnip_obj.fbclient_interface(choice="Logout")
+                # turnip_obj.fbclient_interface(
+                #     username=None, pwd=None, msg=msg_url, recipients=users, choice="Msg"
+                # )
+        # turnip_obj.fbclient_interface(choice="Logout")
         time.sleep(10)
 
 
