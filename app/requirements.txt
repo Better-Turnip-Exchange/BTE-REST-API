@@ -1,0 +1,5 @@
+fastapi
+flashtext
+fbchat
+dotenv
+uvicorn
