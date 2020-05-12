@@ -143,7 +143,7 @@ def main_driver(debug=True):
                 turnip_obj.islands_visited[island["turnipCode"]] = True
                 if debug:
                     webbrowser.get("chrome").open_new_tab(msg_url)
-                    users.append(turnip_obj.fbclient.uid)
+                    # users.append(turnip_obj.fbclient.uid)
                 else:
                     users_requested = ["Alex Messick", "Chris Callan"]
                     for user in users_requested:
