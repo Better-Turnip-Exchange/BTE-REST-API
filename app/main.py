@@ -1,6 +1,6 @@
 import json
 import webbrowser
-from turnip import Turnip
+from app.turnip import Turnip
 from fastapi import FastAPI
 from typing import Dict, List
 from pydantic import BaseModel
