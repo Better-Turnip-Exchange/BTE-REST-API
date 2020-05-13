@@ -12,7 +12,7 @@ from dotenv import load_dotenv  # for python-dotenv method
 env_path = os.path.dirname(os.path.abspath(__file__)) + "/.env"
 
 
-class turnip(object):
+class Turnip(object):
     def __init__(self):
         self.req_params = None
         self.keywords = []
