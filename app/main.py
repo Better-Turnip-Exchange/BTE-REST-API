@@ -2,13 +2,42 @@ import os
 import json
 import webbrowser
 import time
-from turnip_scrape import turnip
+from turnip import Turnip
 from dotenv import load_dotenv  # for python-dotenv method
 from fastapi import FastAPI
+from typing import Dict, List
+from pydantic import BaseModel
 
-env_path = os.path.dirname(os.path.abspath(__file__)) + "/.env"
+
+class TurnipItem(BaseModel):
+    name: str
+    keywords: List[str] = None
+    islands_visited: Dict[str, bool] = None
+    price_threshold = 0
+
 
 app = FastAPI()
+
+items = {
+    "foo": {
+        "name": "Foo",
+        "keywords": [
+            "ENTRY",
+            "entry",
+            "NMT",
+            "NMTs",
+            "nmts",
+            "GOLD",
+            "gold",
+            "MILES",
+            "miles",
+            "TIP",
+            "tip",
+        ],
+        "price_threshold": 520,
+        "islands_visited": {},
+    },
+}
 
 
 @app.get("/")
@@ -16,18 +45,32 @@ def read_root():
     return {"Hello": "World"}
 
 
+@app.post("/items/")
+async def create_item(turnip_item: TurnipItem):
+    item_dict = turnip_item.dict()
+    return item_dict
+
+
+@app.get(
+    "/items/{item_id}/name",
+    response_model=TurnipItem,
+    response_model_include={"name", "keywords"},
+)
+async def read_item_name(turnip_id: str):
+    return items[turnip_id]
+
+
 @app.get("/items/{item_id}")
 def read_item(item_id: int, q: str = None):
     return {"item_id": item_id, "q": q}
 
 
-@app.get("/run")
+@app.post("/run")
 def main_driver(debug=True):
     """
     Main Logic wrapper for turnip price scraping
     """
-    load_dotenv(dotenv_path=env_path)  # for python-dotenv method
-    turnip_obj = turnip()
+    turnip_obj = Turnip()
     headers = {
         "authority": "api.turnip.exchange",
         "accept": "application/json",
@@ -62,33 +105,39 @@ def main_driver(debug=True):
     turnip_obj.build_filter(keywords=keywords)
 
     # Start main logic
-    while True:
-        response = turnip_obj.scrape_turnip_data()
-        out = json.loads(response.text)
-        print("Visited islands ", turnip_obj.islands_visited)
-        # turnip_obj.fbclient_interface(
-        #     username=os.environ.get("FB_USER"), pwd=os.environ.get("FB_PASS"), choice="Login",
-        # )
-        users = []
-        for island in out["islands"]:
-            if (
-                island["turnipPrice"] > 550
-                and not island["turnipCode"] in turnip_obj.islands_visited.keys()
-                and not turnip_obj.keyword_processor.extract_keywords(island["description"])
-            ):
-                msg_url = "https://turnip.exchange/island/{}".format(island["turnipCode"])
-                print("\n", island["description"])
-                turnip_obj.islands_visited[island["turnipCode"]] = True
-                if debug:
-                    webbrowser.get("chrome").open_new_tab(msg_url)
-                    # users.append(turnip_obj.fbclient.uid)
-                else:
-                    users_requested = ["Alex Messick", "Chris Callan"]
-                    for user in users_requested:
-                        users.append((turnip_obj.fbclient.searchForUsers(user)[0]).uid)
-                print("ISLAND FOUND!")
-                # turnip_obj.fbclient_interface(
-                #     username=None, pwd=None, msg=msg_url, recipients=users, choice="Msg"
-                # )
-        # turnip_obj.fbclient_interface(choice="Logout")
-        time.sleep(10)
+    # while True:
+    response = turnip_obj.scrape_turnip_data()
+    out = json.loads(response.text)
+    print("Visited islands ", turnip_obj.islands_visited)
+    # turnip_obj.fbclient_interface(
+    #     username=os.environ.get("FB_USER"), pwd=os.environ.get("FB_PASS"), choice="Login",
+    # )
+    users = []
+    for island in out["islands"]:
+        if (
+            island["turnipPrice"] > 550
+            and not island["turnipCode"] in turnip_obj.islands_visited.keys()
+            and not turnip_obj.keyword_processor.extract_keywords(island["description"])
+        ):
+            msg_url = "https://turnip.exchange/island/{}".format(island["turnipCode"])
+            print("\n", island["description"])
+            turnip_obj.islands_visited[island["turnipCode"]] = True
+            if debug:
+                webbrowser.get("chrome").open_new_tab(msg_url)
+                # users.append(turnip_obj.fbclient.uid)
+            else:
+                users_requested = ["Alex Messick", "Chris Callan"]
+                for user in users_requested:
+                    users.append((turnip_obj.fbclient.searchForUsers(user)[0]).uid)
+            print("ISLAND FOUND!")
+            # turnip_obj.fbclient_interface(
+            #     username=None, pwd=None, msg=msg_url, recipients=users, choice="Msg"
+            # )
+    items["bar"] = {
+        "name": "bar",
+        "keywords": keywords,
+        "islands_visited": turnip_obj.islands_visited,
+        "price_threshold": 600,
+    }
+    return items["bar"]
+    # turnip_obj.fbclient_interface(choice="Logout")
