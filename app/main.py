@@ -65,7 +65,7 @@ async def create_item(turnip_item: TurnipItem):
     response_model=TurnipItem,
     response_model_include={"turnip_id"},
 )
-async def read_turnip_kvm_id(turnip_id: str):
+async def read_turnip_kvs_id(turnip_id: str):
     return turnip_kvs[turnip_id]
 
 
