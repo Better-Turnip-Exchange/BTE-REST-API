@@ -5,6 +5,8 @@ from fastapi import FastAPI
 from typing import Dict, List
 from pydantic import BaseModel
 
+USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, \like Gecko) \
+                Chrome/81.0.4044.138 Safari/537.36"
 
 class TurnipItem(BaseModel):
     turnip_id: str
@@ -15,11 +17,14 @@ class TurnipItem(BaseModel):
 
 app = FastAPI()
 
+# All the parameters needed to interact with turnip.exchange API
+# headers: The headers params may be overkill however this is what worked when
+# curling the turnip.exchange API
 headers = {
     "authority": "api.turnip.exchange",
     "accept": "application/json",
     "content-type": "application/json",
-    "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.138 Safari/537.36",
+    "user-agent": USER_AGENT,
     "x-island-id": "",
     "origin": "https://turnip.exchange",
     "sec-fetch-site": "same-site",
