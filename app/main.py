@@ -174,9 +174,6 @@ async def main_driver(villager_id: str):
             and not turnip_obj.keyword_processor.extract_keywords(island["description"])
         ):
             msg_url = "https://turnip.exchange/island/{}".format(island["turnipCode"])
-            # print("\n", island["description"])
-            visited[island["turnipCode"]] = True
-            webbrowser.get("chrome").open_new_tab(msg_url)
-            print("ISLAND FOUND!")
-    turnip_kvs[turnip_id]["islands_visited"] = visited
-    return turnip_kvs[turnip_id]
+            visited[island["turnipCode"]] = msg_url
+    villager_kvs[villager_id]["islands_visited"] = visited
+    return villager_kvs[villager_id]
