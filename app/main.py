@@ -1,3 +1,4 @@
+import os
 import json
 from app.turnip import Turnip
 from fastapi import FastAPI
@@ -16,6 +17,9 @@ class villager(BaseModel):
     keywords: List[str] = None  # List of words you wish not to see in island descriptions
     islands_visited: Dict[str, str] = None  # A dict of all the island ids a user "visits"
     price_threshold: int  # The requested turnip price limit
+
+
+debug = True if os.environ.get("DEBUG") else False
 
 
 app = FastAPI()

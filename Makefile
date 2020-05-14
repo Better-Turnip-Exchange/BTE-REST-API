@@ -17,7 +17,7 @@ run:
 	source venv/bin/activate && uvicorn app.main:app --host 0.0.0.0 --port 8080 --reload
 
 dev-run:
-	DEBUG=true uvicorn app.main:app --reload
+	source venv/bin/activate && DEBUG=true uvicorn app.main:app --reload
 
 clean:
 	rm -rf ${CLEANUP} && rm -rf venv
