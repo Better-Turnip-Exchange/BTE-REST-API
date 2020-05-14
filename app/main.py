@@ -73,29 +73,47 @@ villager_kvs = {
 }
 
 
-@app.post("/turnip-items/")
-async def create_item(turnip_item: TurnipItem):
-    turnip_item_dict = turnip_item.dict()
-    turnip_kvs[turnip_item_dict["turnip_id"]] = turnip_item_dict
-    return turnip_item_dict
+@app.post(
+    "/villager/", response_model=villager,
+)
+async def create_villager(villager_item: villager):
+    """
+    Create and add a villager to villager_kvs
+
+    villager Request Body attributes required
+    villager_id: str
+    price_threshold: int
+
+    arg: villager_item - villager Data Model detailed above
+
+    return: villager_item_dict
+    """
+    villager_item_dict = villager_item.dict()
+    villager_kvs[villager_item_dict["villager_id"]] = villager_item_dict
+    return villager_item_dict
+
+
+@app.get("/villager/",)
+async def get_villiagers():
+    """
+    Get all villager information from villager_kvs
+
+    return: villager_kvs
+    """
+    return villager_kvs
 
 
 @app.get(
-    "/turnip-items/{turnip_id}/name",
-    response_model=TurnipItem,
-    response_model_include={"turnip_id"},
+    "/villager/{villager_id}/public", response_model=villager,
 )
-async def read_turnip_kvs_id(turnip_id: str):
-    return turnip_kvs[turnip_id]
+async def read_villager_public_data(villager_id: str):
+    """
+    Return villager_id's villager information
 
-
-@app.get(
-    "/turnip-items/{turnip_id}/visited",
-    response_model=TurnipItem,
-    response_model_include={"turnip_id", "islands_visited"},
-)
-async def read_item_islands(turnip_id: str):
-    return turnip_kvs[turnip_id]
+    arg: villager_id: str
+    return: villager_kvs
+    """
+    return villager_kvs[villager_id]
 
 
 @app.post("/run")
