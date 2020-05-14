@@ -1,5 +1,4 @@
 import json
-import webbrowser
 from app.turnip import Turnip
 from fastapi import FastAPI
 from typing import Dict, List
