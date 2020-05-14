@@ -8,11 +8,15 @@ from pydantic import BaseModel
 USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, \like Gecko) \
                 Chrome/81.0.4044.138 Safari/537.36"
 
-class TurnipItem(BaseModel):
-    turnip_id: str
-    keywords: List[str] = None
-    islands_visited: Dict[str, bool] = None
-    price_threshold = 0
+
+# villager Data Model for requests
+# From: https://fastapi.tiangolo.com/tutorial/body/
+# A request body is data sent by the client to your API.
+class villager(BaseModel):
+    villager_id: str  # Populate this with some variant of the username
+    keywords: List[str] = None  # List of words you wish not to see in island descriptions
+    islands_visited: Dict[str, str] = None  # A dict of all the island ids a user "visits"
+    price_threshold: int  # The requested turnip price limit
 
 
 app = FastAPI()
@@ -33,12 +37,23 @@ headers = {
     "referer": "https://turnip.exchange/islands",
     "accept-language": "en-US,en;q=0.9",
 }
+# data: api.turnip.exchange request body needed
+# NOTE: We may want to make this request body configurable by the user
 data = '{"islander":"neither","category":"turnips"}'
+# turnip.exchange API URL
 url = "https://api.turnip.exchange/islands/"
 
-turnip_kvs = {
+# villager_kvs: in-memory kvs for class villager(BaseModel)
+# This is mostly for POC in the future we should convert this to use a RDS
+# This implementation has the following faults
+# 1. Memory blow out
+# 2. Villiagers overwritten via id collisions
+# 3. kvs wiped during server reset
+
+# The foo villager is a runnable example of a user for the POC
+villager_kvs = {
     "foo": {
-        "turnip_id": "Foo",
+        "villager_id": "Foo",
         "keywords": [
             "ENTRY",
             "entry",
