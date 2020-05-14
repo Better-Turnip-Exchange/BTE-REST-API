@@ -1,4 +1,14 @@
 .vscode/settings.json
 .vscode/launch.json
-.env
 *.pyc
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+.DS_Store
+.vscode/.ropeproject/config.py
