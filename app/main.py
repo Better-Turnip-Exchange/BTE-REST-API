@@ -116,14 +116,43 @@ async def read_villager_public_data(villager_id: str):
     return villager_kvs[villager_id]
 
 
-@app.post("/run")
-def main_driver(turnip_id: str):
+@app.post(
+    "/run",
+    response_model=villager,
+    response_model_include={"villager_id", "islands_visited", "price_threshold"},
+)
+async def main_driver(villager_id: str):
     """
     Main Logic wrapper for turnip price scraping
+
+    NOTE: This is subject to change heavily as development continues.
+
+    1. Check if villager exists
+      - If not create them.
+      - NOTE: Probably best to return a status code instead of populating the kvs
+              implicitly/
+    2. Create Turnip object
+      - This obj has a lot of the same attributes as the villager
+        however it also acts as an interface for some of the main logic
+      - Build turnip filter
+      - Scrape the turnip page
+    3. Traverse all the islands scrapped and populate the villager's
+       islands_visited attribute with the url
+       - update the villager kvs information
+       - In the past part of the logic also opened new chrome tabs and sent fb
+         messages, we want to control and throttle this more to not create spam.
+
+    arg:
+    - villager_id
+    - NOTE: Potential optional arg; price threshold if they want to override value
+
+    returns:
+    - villager data model
+        - the villager_id, visited islands (urls) and and price threshold they set
     """
-    if turnip_id not in turnip_kvs.keys():
-        turnip_kvs[turnip_id] = {
-            "turnip_id": turnip_id,
+    if villager_id not in villager_kvs.keys():
+        villager_kvs[villager_id] = {
+            "turnip_id": villager_id,
             "keywords": [],
             "islands_visited": {},
             "price_threshold": 0,
@@ -132,16 +161,15 @@ def main_driver(turnip_id: str):
     turnip_obj.build_requests(headers=headers, data=data, url=url)
 
     # Setup filter
-    turnip_obj.build_filter(keywords=turnip_kvs[turnip_id]["keywords"])
+    turnip_obj.build_filter(keywords=villager_kvs[villager_id]["keywords"])
 
     # Start main logic
     response = turnip_obj.scrape_turnip_data()
     response = json.loads(response.text)
-    visited = turnip_kvs[turnip_id]["islands_visited"]
-    print("Visited islands ", visited)
+    visited = villager_kvs[villager_id]["islands_visited"]
     for island in response["islands"]:
         if (
-            island["turnipPrice"] > turnip_kvs[turnip_id]["price_threshold"]
+            island["turnipPrice"] > villager_kvs[villager_id]["price_threshold"]
             and not island["turnipCode"] in visited
             and not turnip_obj.keyword_processor.extract_keywords(island["description"])
         ):
