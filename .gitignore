@@ -12,3 +12,4 @@ env.bak/
 venv.bak/
 .DS_Store
 .vscode/.ropeproject/config.py
+*.code-workspace
