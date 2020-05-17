@@ -1,8 +1,7 @@
 import os
 import json
 import uvicorn
-import app
-from app import turnip
+from server import turnip
 from fastapi import FastAPI
 from typing import Dict, List
 from pydantic import BaseModel
@@ -23,8 +22,6 @@ class villager(BaseModel):
 
 debug = True if os.environ.get("DEBUG") else False
 
-
-app = FastAPI()
 
 # All the parameters needed to interact with turnip.exchange API
 # headers: The headers params may be overkill however this is what worked when
@@ -76,6 +73,17 @@ villager_kvs = {
         "price_threshold": 520,
     },
 }
+
+app = FastAPI(
+    title="Better Turnip Exchange",
+    description="A turnip.exchange companion that makes it easy to sell your nips.",
+    version="0.0.1",
+)
+
+
+@app.get("/")
+async def read_main():
+    return {"msg": "Hello World"}
 
 
 @app.post(

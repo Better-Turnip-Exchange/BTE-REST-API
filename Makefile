@@ -14,10 +14,10 @@ build: venv ## setup environment
 	venv/bin/pip-sync requirements.txt
 
 run:
-	source venv/bin/activate && uvicorn app.main:app --host 0.0.0.0 --port 8080 --reload
+	source venv/bin/activate && uvicorn server.main:app --host 0.0.0.0 --port 8080 --reload
 
 dev-run:
-	source venv/bin/activate && DEBUG=true uvicorn app.main:app --reload
+	source venv/bin/activate && DEBUG=true uvicorn server.main:app --reload
 
 clean:
 	rm -rf ${CLEANUP} && rm -rf venv
