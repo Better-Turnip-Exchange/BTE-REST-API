@@ -1,6 +1,8 @@
 import os
 import json
-from app.turnip import Turnip
+import uvicorn
+import app
+from app import turnip
 from fastapi import FastAPI
 from typing import Dict, List
 from pydantic import BaseModel
@@ -160,7 +162,7 @@ async def main_driver(villager_id: str):
             "islands_visited": {},
             "price_threshold": 0,
         }
-    turnip_obj = Turnip()
+    turnip_obj = turnip.Turnip()
     turnip_obj.build_requests(headers=headers, data=data, url=url)
 
     # Setup filter
@@ -180,3 +182,7 @@ async def main_driver(villager_id: str):
             visited[island["turnipCode"]] = msg_url
     villager_kvs[villager_id]["islands_visited"] = visited
     return villager_kvs[villager_id]
+
+
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=8000)
