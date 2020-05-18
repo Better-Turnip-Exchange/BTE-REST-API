@@ -19,5 +19,8 @@ run:
 dev-run:
 	source venv/bin/activate && DEBUG=true uvicorn server.main:app --reload
 
+test:
+	pytest --disable-pytest-warnings
+
 clean:
 	rm -rf ${CLEANUP} && rm -rf venv
