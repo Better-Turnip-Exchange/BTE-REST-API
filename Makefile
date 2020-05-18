@@ -29,7 +29,13 @@ dev-run:
 	source venv/bin/activate && DEBUG=true uvicorn server.main:app --reload
 
 clean:
-	rm -rf ${CLEANUP} && rm -rf venv
+	rm -rf .pytest_cache \
+	&& rm -rf server/__pycache__ \
+	&& rm -rf server/.pytest_cache\
+	&& rm -rf server/tests/__pycache__\
+	&& rm -rf server/tests/.pytest_cache\
+	&& rm -rf venv
+
 
 test: dev
 	source venv/bin/activate && pytest \
