@@ -9,9 +9,18 @@ requirements.txt: requirements.in ## create requirements
 	--no-emit-trusted-host \
 	requirements.in
 
+requirements-dev.txt: requirements-dev.in ## create requirements
+	venv/bin/pip-compile -o requirements-dev.txt \
+	--no-header \
+	--no-index \
+	--no-emit-trusted-host \
+	requirements-dev.in
 
 build: venv ## setup environment
 	venv/bin/pip-sync requirements.txt
+
+dev: venv ## setup dev environment
+	venv/bin/pip-sync requirements-dev.txt
 
 run:
 	source venv/bin/activate && uvicorn server.main:app --host 0.0.0.0 --port 8080 --reload
@@ -19,8 +28,10 @@ run:
 dev-run:
 	source venv/bin/activate && DEBUG=true uvicorn server.main:app --reload
 
-test:
-	pytest --disable-pytest-warnings
-
 clean:
 	rm -rf ${CLEANUP} && rm -rf venv
+
+test: dev
+	source venv/bin/activate && pytest \
+	--disable-pytest-warnings \
+	&& make clean
