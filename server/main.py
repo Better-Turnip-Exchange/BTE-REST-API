@@ -54,7 +54,7 @@ url = "https://api.turnip.exchange/islands/"
 
 # The foo villager is a runnable example of a user for the POC
 villager_kvs = {
-    "foo": {
+    "Foo": {
         "villager_id": "Foo",
         "keywords": [
             "ENTRY",
@@ -119,7 +119,12 @@ async def get_villiagers():
 
     return: villager_kvs
     """
-    return villager_kvs
+    try:
+        return villager_kvs
+    except Exception as e:
+        raise HTTPException(
+            status_code=404, detail="villager_kvs is not found: {}".format(str(e))
+        )
 
 
 @app.get(
@@ -132,7 +137,13 @@ async def read_villager_public_data(villager_id: str):
     arg: villager_id: str
     return: villager_kvs
     """
-    return villager_kvs[villager_id]
+    try:
+        return villager_kvs[villager_id]
+    except Exception as e:
+        raise HTTPException(
+            status_code=404,
+            detail="villager_id {} is not found: {}".format(villager_id, str(e)),
+        )
 
 
 @app.post(
