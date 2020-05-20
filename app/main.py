@@ -176,3 +176,7 @@ async def main_driver(villager_id: str):
             visited[island["turnipCode"]] = msg_url
     villager_kvs[villager_id]["islands_visited"] = visited
     return villager_kvs[villager_id]
+
+@app.put("/villager/{villager_id}")
+async def create_villager():
+    return {}
