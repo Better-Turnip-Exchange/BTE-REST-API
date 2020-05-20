@@ -177,6 +177,23 @@ async def main_driver(villager_id: str):
     villager_kvs[villager_id]["islands_visited"] = visited
     return villager_kvs[villager_id]
 
+
 @app.put("/villager/{villager_id}")
+# Needs to expect the villager_id (str) and keywords (List[str])
+# Change function name to something better
 async def create_villager():
-    return {}
+    """
+    Write a docstring onliner
+
+    more detail if you want it
+
+    args:
+    return:
+    """
+    # Check if villager exists
+    # NOTE: You want to search and pull data from the villager_kvs
+    # if exists do a thing
+    #  - FOO = villager you found
+    #  - update FOO's keywords
+    # else do another thing
+    return  # return FOO
