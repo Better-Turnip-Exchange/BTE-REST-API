@@ -2,7 +2,7 @@ import os
 import json
 import uvicorn
 from server import turnip
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from typing import Dict, List
 from pydantic import BaseModel
 
@@ -54,7 +54,7 @@ url = "https://api.turnip.exchange/islands/"
 
 # The foo villager is a runnable example of a user for the POC
 villager_kvs = {
-    "foo": {
+    "Foo": {
         "villager_id": "Foo",
         "keywords": [
             "ENTRY",
@@ -101,8 +101,14 @@ async def create_villager(villager_item: villager):
 
     return: villager_item_dict
     """
-    villager_item_dict = villager_item.dict()
-    villager_kvs[villager_item_dict["villager_id"]] = villager_item_dict
+    if type(villager_item) != villager:
+        raise HTTPException(status_code=400, detail="Incorrect request data model")
+    else:
+        try:
+            villager_item_dict = villager_item.dict()
+            villager_kvs[villager_item_dict["villager_id"]] = villager_item_dict
+        except Exception as e:
+            raise HTTPException(status_code=422, detail=str(e))
     return villager_item_dict
 
 
@@ -113,7 +119,12 @@ async def get_villiagers():
 
     return: villager_kvs
     """
-    return villager_kvs
+    try:
+        return villager_kvs
+    except Exception as e:
+        raise HTTPException(
+            status_code=404, detail="villager_kvs is not found: {}".format(str(e))
+        )
 
 
 @app.get(
@@ -126,13 +137,17 @@ async def read_villager_public_data(villager_id: str):
     arg: villager_id: str
     return: villager_kvs
     """
-    return villager_kvs[villager_id]
+    try:
+        return villager_kvs[villager_id]
+    except Exception as e:
+        raise HTTPException(
+            status_code=404,
+            detail="villager_id {} is not found: {}".format(villager_id, str(e)),
+        )
 
 
 @app.post(
-    "/run",
-    response_model=villager,
-    response_model_include={"villager_id", "islands_visited", "price_threshold"},
+    "/run", response_model=villager, response_model_include={"islands_visited"},
 )
 async def main_driver(villager_id: str):
     """
@@ -141,9 +156,7 @@ async def main_driver(villager_id: str):
     NOTE: This is subject to change heavily as development continues.
 
     1. Check if villager exists
-      - If not create them.
-      - NOTE: Probably best to return a status code instead of populating the kvs
-              implicitly/
+      - 404 please create_villager before POST to main_driver
     2. Create Turnip object
       - This obj has a lot of the same attributes as the villager
         however it also acts as an interface for some of the main logic
@@ -157,38 +170,48 @@ async def main_driver(villager_id: str):
 
     arg:
     - villager_id
-    - NOTE: Potential optional arg; price threshold if they want to override value
 
     returns:
-    - villager data model
-        - the villager_id, visited islands (urls) and and price threshold they set
+    - islands_visited
+    {
+       "islands_visited": {
+          "123456789": "https://turnip.exchange/island/123456789",
+        }
+    }
     """
     if villager_id not in villager_kvs.keys():
-        villager_kvs[villager_id] = {
-            "turnip_id": villager_id,
-            "keywords": [],
-            "islands_visited": {},
-            "price_threshold": 0,
-        }
-    turnip_obj = turnip.Turnip()
-    turnip_obj.build_requests(headers=headers, data=data, url=url)
-
-    # Setup filter
-    turnip_obj.build_filter(keywords=villager_kvs[villager_id]["keywords"])
-
-    # Start main logic
-    response = turnip_obj.scrape_turnip_data()
-    response = json.loads(response.text)
-    visited = villager_kvs[villager_id]["islands_visited"]
-    for island in response["islands"]:
-        if (
-            island["turnipPrice"] > villager_kvs[villager_id]["price_threshold"]
-            and not island["turnipCode"] in visited
-            and not turnip_obj.keyword_processor.extract_keywords(island["description"])
-        ):
-            msg_url = "https://turnip.exchange/island/{}".format(island["turnipCode"])
-            visited[island["turnipCode"]] = msg_url
-    villager_kvs[villager_id]["islands_visited"] = visited
+        raise HTTPException(status_code=404, detail="Villager not found")
+    try:
+        turnip_obj = turnip.Turnip()
+        turnip_obj.build_requests(headers=headers, data=data, url=url)
+    except Exception as e:
+        raise HTTPException(
+            status_code=503, detail="turnip.exchange API is unreachable: {}".format(str(e))
+        )
+    try:
+        # Setup filter
+        turnip_obj.build_filter(keywords=villager_kvs[villager_id]["keywords"])
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Keyword filter failed: {}".format(str(e)))
+    try:
+        # Start main logic
+        response = turnip_obj.scrape_turnip_data()
+        response = json.loads(response.text)
+        visited = villager_kvs[villager_id]["islands_visited"]
+        for island in response["islands"]:
+            if (
+                island["turnipPrice"] > villager_kvs[villager_id]["price_threshold"]
+                and not island["turnipCode"] in visited
+                and not turnip_obj.keyword_processor.extract_keywords(island["description"])
+            ):
+                msg_url = "https://turnip.exchange/island/{}".format(island["turnipCode"])
+                visited[island["turnipCode"]] = msg_url
+        villager_kvs[villager_id]["islands_visited"] = visited
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail="Failed to populate islands_visited section: {}".format(str(e)),
+        )
     return villager_kvs[villager_id]
 
 

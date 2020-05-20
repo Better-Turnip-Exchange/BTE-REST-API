@@ -42,3 +42,12 @@ make build
 ```sh
 make clean
 ```
+
+## Tests
+
+---
+
+```sh
+make dev
+make test
+```
