@@ -57,20 +57,19 @@ def test_create_villager():
     }
 
 
-def test_create_villager_fail_malform():
+def test_create_villager_fail_unprocessable():
     response = client.post(
-        "/villager/",
-        json={
-            "name": "Bar",
-            "keywords": ["Entry"],
-            "islands_visited": {},
-            "price_threshold": 300,
-        },
+        "/villager/", json={"name": "Bar", "keyword": ["Entry"], "islands": "", "price": 300},
     )
     assert response.status_code == 422
 
 
-def test_create_villager_fail_():
+def test_create_villager_fail_empty():
+    response = client.post("/villager/", data={"": ""})
+    assert response.status_code == 400
+
+
+def test_create_villager_fail_no_data():
     response = client.post("/villager/")
     assert response.status_code == 422
 
@@ -110,4 +109,5 @@ if __name__ == "__main__":
     # test_get_villagers()
     # test_read_villager_public()
     test_create_villager_fail_malform()
-    test_create_villager_fail_()
+    # test_create_villager_fail_empty()
+    test_create_villager_fail_no_data()
