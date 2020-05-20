@@ -48,5 +48,6 @@ make clean
 ---
 
 ```sh
+make dev
 make test
 ```

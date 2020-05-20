@@ -37,6 +37,5 @@ clean:
 	&& rm -rf venv
 
 
-test: dev
-	source venv/bin/activate; pytest --disable-pytest-warnings; \
-	make clean
+test:
+	source venv/bin/activate; pytest --disable-pytest-warnings
