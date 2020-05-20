@@ -38,6 +38,5 @@ clean:
 
 
 test: dev
-	source venv/bin/activate && pytest \
-	--disable-pytest-warnings \
-	&& make clean
+	source venv/bin/activate; pytest --disable-pytest-warnings; \
+	make clean
