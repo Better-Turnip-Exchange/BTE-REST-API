@@ -76,8 +76,8 @@ villager_kvs = {
 
 app = FastAPI(
     title="Better Turnip Exchange",
-    description="A turnip.exchange companion that makes it easy to sell your nips.",
-    version="0.0.1",
+    description="A turnip.exchange companion that makes it easier to sell your turnips.",
+    version="1.0.0",
 )
 
 
