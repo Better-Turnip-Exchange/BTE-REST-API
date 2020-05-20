@@ -3,6 +3,7 @@ from app.turnip import Turnip
 from fastapi import FastAPI
 from typing import Dict, List
 from pydantic import BaseModel
+import uvicorn
 
 USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, \like Gecko) \
                 Chrome/81.0.4044.138 Safari/537.36"
@@ -197,3 +198,7 @@ async def create_villager():
     #  - update FOO's keywords
     # else do another thing
     return  # return FOO
+
+
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=8000)
