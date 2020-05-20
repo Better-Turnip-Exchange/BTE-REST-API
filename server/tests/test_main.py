@@ -89,3 +89,5 @@ def test_read_villager_public():
 if __name__ == "__main__":
     test_read_root()
     test_create_villager()
+    test_get_villagers()
+    test_read_villager_public()
