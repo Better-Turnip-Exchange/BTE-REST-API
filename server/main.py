@@ -2,7 +2,7 @@ import os
 import json
 import uvicorn
 from server import turnip
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from typing import Dict, List
 from pydantic import BaseModel
 
@@ -101,8 +101,14 @@ async def create_villager(villager_item: villager):
 
     return: villager_item_dict
     """
-    villager_item_dict = villager_item.dict()
-    villager_kvs[villager_item_dict["villager_id"]] = villager_item_dict
+    if type(villager_item) != villager:
+        raise HTTPException(status_code=400, detail="Incorrect request data model")
+    else:
+        try:
+            villager_item_dict = villager_item.dict()
+            villager_kvs[villager_item_dict["villager_id"]] = villager_item_dict
+        except Exception as e:
+            raise HTTPException(status_code=422, detail=str(e))
     return villager_item_dict
 
 
