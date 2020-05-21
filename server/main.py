@@ -1,4 +1,6 @@
 import os
+import string
+import random
 import json
 import uvicorn
 from server import turnip
@@ -10,14 +12,19 @@ USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36
                 Chrome/81.0.4044.138 Safari/537.36"
 
 
+# Borrowed from https://stackoverflow.com/a/2257449
+def villager_id_generator(size=8, chars=string.ascii_uppercase + string.digits):
+    return "".join(random.choice(chars) for _ in range(size))
+
+
 # villager Data Model for requests
 # From: https://fastapi.tiangolo.com/tutorial/body/
 # A request body is data sent by the client to your API.
 class villager(BaseModel):
-    villager_id: str  # Populate this with some variant of the username
-    keywords: List[str] = None  # List of words you wish not to see in island descriptions
-    islands_visited: Dict[str, str] = None  # A dict of all the island ids a user "visits"
-    price_threshold: int  # The requested turnip price limit
+    villager_id: str = villager_id_generator()  # Populate this with a random string
+    keywords: List[str] = []  # List of words you wish not to see in island descriptions
+    islands_visited: Dict[str, str] = {}  # A dict of all the island ids a user "visits"
+    price_threshold: int = 0  # The requested turnip price limit
 
 
 debug = True if os.environ.get("DEBUG") else False
