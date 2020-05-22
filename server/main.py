@@ -220,6 +220,7 @@ async def main_driver(villager_id: str):
         for island in response["islands"]:
             if (
                 island["turnipPrice"] > villager_kvs[villager_id]["price_threshold"]
+                and not island["fee"]
                 and not island["turnipCode"] in visited
                 and not turnip_obj.keyword_processor.extract_keywords(island["description"])
             ):
