@@ -1,0 +1,10 @@
+version: "3"
+services:
+    backend:
+        image: "bte-rest-api"
+        build:
+            context: ./
+            dockerfile: Dockerfile
+        ports:
+            - "8080:8080"
+        command: uvicorn server.main:app --reload --port 8080 --host 0.0.0.0
