@@ -1,6 +1,6 @@
 import json
 from app.turnip import Turnip
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from typing import Dict, List
 from pydantic import BaseModel
 import uvicorn
@@ -179,25 +179,28 @@ async def main_driver(villager_id: str):
     return villager_kvs[villager_id]
 
 
-@app.put("/villager/{villager_id}")
+@app.put("/villager/{villager_id}/update")
 # Needs to expect the villager_id (str) and keywords (List[str])
-# Change function name to something better
-async def create_villager():
+async def update_keywords(villager_id: str, keywords: List[str]):
     """
-    Write a docstring onliner
+    Checks to see if villager exists in villager_kvs and
+    updates keywords.
 
-    more detail if you want it
-
-    args:
-    return:
+    args: villager_id: str, keywords: List[str]
+    return: villager_kvs
     """
-    # Check if villager exists
+    # Check if villager_id exists in kvs
     # NOTE: You want to search and pull data from the villager_kvs
-    # if exists do a thing
+    # if villager_id exists in kvs, then update keywords
+    if villager_id in villager_kvs.keys():
+        villager_kvs[villager_id]["keywords"] = keywords
     #  - FOO = villager you found
     #  - update FOO's keywords
-    # else do another thing
-    return  # return FOO
+    # if villager_id is not in kvs, then give error msg
+    else:
+        raise HTTPException(status_code=404, detail="Villager not found!")
+    # return villager_id
+    return villager_kvs[villager_id]
 
 
 if __name__ == "__main__":
