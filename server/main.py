@@ -23,7 +23,7 @@ def villager_id_generator(size=8, chars=string.ascii_uppercase + string.digits):
 class villager(BaseModel):
     villager_id: str = villager_id_generator()  # Populate this with a random string
     keywords: List[str] = []  # List of words you wish not to see in island descriptions
-    islands_visited: Dict[str, str] = {}  # A dict of all the island ids a user "visits"
+    islands_visited: Dict[str, dict] = {}  # A dict of all the island ids a user "visits"
     price_threshold: int = 0  # The requested turnip price limit
 
 
@@ -181,8 +181,20 @@ async def main_driver(villager_id: str):
     returns:
     - islands_visited
     {
-       "islands_visited": {
-          "123456789": "https://turnip.exchange/island/123456789",
+        {
+        "islands_visited": {
+            "str": {
+            "name":""
+            "link", "str",
+            "description": "str"
+            "turnipPrice": int,
+            "creationTime": "str",
+            "rating": int,
+            "ratingCount": int,
+            "islandScore": int,
+            "queued": "str",
+            "maxQueue": int
+            }
         }
     }
     """
@@ -208,11 +220,35 @@ async def main_driver(villager_id: str):
         for island in response["islands"]:
             if (
                 island["turnipPrice"] > villager_kvs[villager_id]["price_threshold"]
+                and not island["fee"]
                 and not island["turnipCode"] in visited
                 and not turnip_obj.keyword_processor.extract_keywords(island["description"])
             ):
-                msg_url = "https://turnip.exchange/island/{}".format(island["turnipCode"])
-                visited[island["turnipCode"]] = msg_url
+                turnip_code = island["turnipCode"]
+                msg_url = "https://turnip.exchange/island/{}".format(turnip_code)
+                name = island["name"]
+                link = msg_url
+                description = island["description"]
+                turnipPrice = island["turnipPrice"]
+                creationTime = island["creationTime"]
+                rating = island["rating"]
+                ratingCount = island["ratingCount"]
+                islandScore = island["islandScore"]
+                queued = island["queued"]
+                maxQueue = island["maxQueue"]
+                iv = {
+                    "name": name,
+                    "link": link,
+                    "description": description,
+                    "turnipPrice": turnipPrice,
+                    "creationTime": creationTime,
+                    "rating": rating,
+                    "ratingCount": ratingCount,
+                    "islandScore": islandScore,
+                    "queued": queued,
+                    "maxQueue": maxQueue,
+                }
+                visited[turnip_code] = iv
         villager_kvs[villager_id]["islands_visited"] = visited
     except Exception as e:
         raise HTTPException(
