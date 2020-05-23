@@ -4,7 +4,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="BTE-REST-API",  # Replace with your own username
+    name="bteapi",
     version="0.0.1",
     author="Zagan",
     description="turnip.exchange companion api",
