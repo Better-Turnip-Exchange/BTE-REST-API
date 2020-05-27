@@ -187,21 +187,43 @@ async def update_keywords(villager_id: str, keywords: List[str]):
     updates keywords.
 
     args: villager_id: str, keywords: List[str]
-    return: villager_kvs
+    return: villager specified by villager_id
     """
     # Check if villager_id exists in kvs
     # NOTE: You want to search and pull data from the villager_kvs
-    # if villager_id exists in kvs, then update keywords
     if villager_id in villager_kvs.keys():
+        # if villager_id exists in kvs, then update keywords
         villager_kvs[villager_id]["keywords"] = keywords
-    #  - FOO = villager you found
-    #  - update FOO's keywords
-    # if villager_id is not in kvs, then give error msg
     else:
+        # if villager_id is not in kvs, then give error msg
         raise HTTPException(status_code=404, detail="Villager not found!")
-    # return villager_id
     return villager_kvs[villager_id]
 
+@app.put("/villager/{villager_id}/append")
+# Needs to expect the villager_id (str) and keywords (List[str])
+async def append_keywords(villager_id: str, keywords: List[str]):
+    """
+    Checks to see if villager exists in villager_kvs and
+    appends keywords to the keywords list.
+
+    args: villager_id: str, keywords: List[str]
+    return: villager specified by villager_id
+    """
+    # Check if villager_id exists in kvs
+    # NOTE: You want to search and pull data from the villager_kvs
+    if villager_id in villager_kvs.keys():
+        # if villager_id exists in kvs, then appends keywords
+        # Converts existing keywords list to set, then creates a new set from added keywords
+        # Finds keywords that do not exist in the existing set, then combines the two sets
+        # Converts combined set back to a list 
+        original_keywords_set = set(villager_kvs[villager_id]["keywords"])
+        new_keywords_set = set(keywords)
+        not_in_original = list(new_keywords_set - original_keywords_set)
+        villager_kvs[villager_id]["keywords"] = villager_kvs[villager_id]["keywords"] + not_in_original
+    else:
+        # if villager_id is not in kvs, then give error msg
+        raise HTTPException(status_code=404, detail="Villager not found!")
+    return villager_kvs[villager_id]
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
