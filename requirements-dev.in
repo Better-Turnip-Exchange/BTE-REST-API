@@ -1,5 +1,6 @@
+-r requirements.txt
 fastapi
 flashtext
 uvicorn
-gunicorn
+python-dotenv
 requests

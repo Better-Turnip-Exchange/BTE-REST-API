@@ -1,5 +1,5 @@
+pytest
 fastapi
 flashtext
 uvicorn
-gunicorn
 requests

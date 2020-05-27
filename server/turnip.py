@@ -1,15 +1,6 @@
-import os
 import json
-import webbrowser
-from flashtext import KeywordProcessor
-import smtplib, ssl
-import time
-from fbchat import Client
-from fbchat.models import *
 import requests
-from dotenv import load_dotenv  # for python-dotenv method
-
-env_path = os.path.dirname(os.path.abspath(__file__)) + "/.env"
+from flashtext import KeywordProcessor
 
 
 class Turnip(object):
@@ -20,7 +11,6 @@ class Turnip(object):
         self.keyword_processor = KeywordProcessor()
         self.price_threshold = 0
         self.response = None
-        self.fbclient = None
 
     def build_requests(self, headers: dict, data: str, url: str):
         """
@@ -37,32 +27,6 @@ class Turnip(object):
         """
         for word in keywords:
             self.keyword_processor.add_keyword(word)
-
-    def fbclient_interface(
-        self,
-        username: str = "",
-        pwd: str = "",
-        msg: str = "",
-        recipients: list = [],
-        choice: str = "",
-    ):
-        """
-        Initialize fb client
-        """
-        if choice == "Login":
-            self.fbclient = Client(username, pwd)
-        elif choice == "Msg":
-            if self.fbclient is not None and self.fbclient.isLoggedIn:
-                for user in recipients:
-                    self.fbclient.send(
-                        Message(text=msg), thread_id=user, thread_type=ThreadType.USER
-                    )
-        elif choice == "Logout":
-            pass
-        else:
-            print("Invalid choice...")
-            return
-        return self.fbclient
 
     def scrape_turnip_data(self):
         """
@@ -88,8 +52,7 @@ def main_driver(debug=True):
     """
     Main Logic wrapper for turnip price scraping
     """
-    load_dotenv(dotenv_path=env_path)  # for python-dotenv method
-    turnip_obj = turnip()
+    turnip_obj = Turnip()
     headers = {
         "authority": "api.turnip.exchange",
         "accept": "application/json",
@@ -128,10 +91,6 @@ def main_driver(debug=True):
         response = turnip_obj.scrape_turnip_data()
         out = json.loads(response.text)
         print("Visited islands ", turnip_obj.islands_visited)
-        # turnip_obj.fbclient_interface(
-        #     username=os.environ.get("FB_USER"), pwd=os.environ.get("FB_PASS"), choice="Login",
-        # )
-        users = []
         for island in out["islands"]:
             if (
                 island["turnipPrice"] > 550
@@ -140,20 +99,7 @@ def main_driver(debug=True):
             ):
                 msg_url = "https://turnip.exchange/island/{}".format(island["turnipCode"])
                 print("\n", island["description"])
-                turnip_obj.islands_visited[island["turnipCode"]] = True
-                if debug:
-                    webbrowser.get("chrome").open_new_tab(msg_url)
-                    # users.append(turnip_obj.fbclient.uid)
-                else:
-                    users_requested = ["Alex Messick", "Chris Callan"]
-                    for user in users_requested:
-                        users.append((turnip_obj.fbclient.searchForUsers(user)[0]).uid)
-                print("ISLAND FOUND!")
-                # turnip_obj.fbclient_interface(
-                #     username=None, pwd=None, msg=msg_url, recipients=users, choice="Msg"
-                # )
-        # turnip_obj.fbclient_interface(choice="Logout")
-        time.sleep(10)
+                turnip_obj.islands_visited[island["turnipCode"]] = msg_url
 
 
 if __name__ == "__main__":

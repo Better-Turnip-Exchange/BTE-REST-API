@@ -42,3 +42,28 @@ make build
 ```sh
 make clean
 ```
+
+## Docker
+
+---
+
+WIP will write a script to automate this
+
+1. Build docker image
+`docker build -t bte-rest-api .`
+
+2. Run docker container
+`docker-compose up`
+
+3. Stop docker container
+`docker-compose down`
+
+## Tests
+
+---
+
+```sh
+make dev
+make test
+```
+
