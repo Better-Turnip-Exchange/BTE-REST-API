@@ -161,6 +161,7 @@ async def append_keywords(villager_id: str, keywords: List[str]):
         new_keywords_set = set(keywords)
         not_in_original = list(new_keywords_set - original_keywords_set)
         combined_keywords = villager_kvs[villager_id]["keywords"] + not_in_original
+        combined_keywords.sort()
         villager_kvs[villager_id]["keywords"] = combined_keywords
     else:
         # if villager_id is not in kvs, then give error msg
